@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,initial-scale=1.0,width=device-width"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>音乐嗨</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+    <style type="text/css">
+    html,body{
+        height: 100%;
+    }
+    .aui-bar-dark {background-color:#E65A65;}
+    #music {padding:50px 0; text-align:center;}
+    #music img {border-radius:100px; width:200px; height:200px;}
+    #title {text-align:center;}
+    .aui-btn-block {padding:10px 0; font-size:14px;}
+    .aui-btn-danger {background-color:#E65A65;}
+    </style>
+</head>
+<body>
+    <header id="aui-header" class="aui-bar aui-bar-nav aui-bar-dark">
+        音乐嗨
+    </header>
+    <div id='music'>
+        <img src='../image/music.png' />
+    </div>
+    <h5 id='title'>买买买 - By2</h5>
+    <div class="aui-content">
+        <div class="aui-range" style="margin-top:30px;">
+            <input type="range" class="aui-range-danger" value="0" max="100" min="1" step="1" id="range" />
+        </div>
+    </div>
+    <div class="aui-btn aui-btn-danger aui-btn-block" id="btnStart">播放音乐(start)</div>
+    <br />
+    <div class="aui-btn aui-btn-danger aui-btn-block" id="btnPause">停止播放(pause)</div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/aui.js"></script>
+<script type="text/javascript" src="../script/aui-range.js"></script>
+<script type="text/javascript" src="../script/jauery.js"></script>
+<script type="text/javascript" src="../script/jaueryRotate.js"></script>
+<script type="text/javascript">
+//播放
+    function fnStart(){
+        var url = api.pageParam.url;
+        var netAudio = api.require('netAudio');
+        netAudio.play({
+            path: url
+        }, function(ret, err) {
+            if(ret){
+            //滑块滚动 随着音乐播放则滚动
+                $api.byId('range').value = ret.current / ret.duration * 100;
+            }
+            //调用fnRotate方法
+            fnRotate();
+        });
+    }
+
+
+
+    var angle = 0;
+    var timer;
+    //旋转的方法
+    function fnRotate(){
+        //清除已存在的定时器
+     clerInterval(timer);
+     timer = setInterval(function(){
+        angle+=3;
+      $("#music img").rotate(angle);
+      },50);
+    }
+
+
+    //暂停
+    function fnPause(){
+        var netAudio = api.require('netAudio');
+        netAudio.pause();
+        clerInterval(timer);
+    }
+
+
+    apiready = function(){
+        
+        fnStart();
+        //拖动滑块到相应的位置 //jqueryRotate
+        $aui.range($api.byId("range"),function(ret){
+           var netAudio = api.require('netAudio');
+            netAudio.setProgress({
+                progress: ret
+            });
+        })
+        //获取btnStart与btnPause
+        $api.byId('btnStart').onclick = fnStart;
+        $api.byId('btnPause').onclick = fnPause;
+
+    }
+</script>
+</html>
